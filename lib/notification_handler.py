@@ -16,10 +16,14 @@ MANUAL_CHECKIN_URL = "https://mobile.southwest.com/check-in"
 class NotificationHandler:
     """Handles all notifications that will be sent to the user either via Apprise or the console"""
 
-    def __init__(self, flight_retriever: FlightRetriever) -> None:
+    def __init__(self, flight_retriever, config=None) -> None:
         self.flight_retriever = flight_retriever
-        self.notification_urls = self.flight_retriever.config.notification_urls
-        self.notification_level = self.flight_retriever.config.notification_level
+        if flight_retriever:
+            self.notification_urls = self.flight_retriever.config.notification_urls
+            self.notification_level = self.flight_retriever.config.notification_level
+        else:
+            self.notification_urls = config.notification_urls
+            self.notification_level = config.notification_level
 
     def _get_account_name(self) -> str:
         return f"{self.flight_retriever.first_name} {self.flight_retriever.last_name}"

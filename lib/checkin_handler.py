@@ -32,6 +32,7 @@ class CheckInHandler:
 
     def schedule_check_in(self) -> None:
         process = Process(target=self._set_check_in)
+        process.daemon = True
         process.start()
 
     def _set_check_in(self) -> None:

@@ -1,11 +1,14 @@
 import json
 import os
 import sys
+import git
 from typing import Any, Dict
+
 
 from .general import NotificationLevel
 
-CONFIG_FILE_NAME = "config.json"
+CONFIG_POSITION = '../../script-config'
+CONFIG_FILE_NAME = "southwest/config.json"
 
 
 class Config:
@@ -14,7 +17,9 @@ class Config:
         self.notification_urls = []
         self.notification_level = NotificationLevel.INFO
         self.retrieval_interval = 24
-
+        self.user_login = []
+        self.flights = []
+        self.config_update_interval = 24
         # Read the config file
         config = self._get_config()
 
@@ -26,10 +31,14 @@ class Config:
             print(err)
             sys.exit()
 
-    def _get_config(self) -> Dict[str, Any]:
-        project_dir = os.path.dirname(os.path.dirname(__file__))
-        config_file = project_dir + "/" + CONFIG_FILE_NAME
+    def __eq__(self, other):
+        return self.__dict__ == other.__dict__
 
+    def _get_config(self) -> Dict[str, Any]:
+        project_dir = os.path.normpath(os.path.join(os.path.dirname(__file__), CONFIG_POSITION))
+        config_file = project_dir + "/" + CONFIG_FILE_NAME
+        g = git.cmd.Git(project_dir)
+        g.pull()
         config = {}
         try:
             with open(config_file) as file:
@@ -65,3 +74,12 @@ class Config:
                     f"Setting 'retrieval_interval' to one as {self.retrieval_interval} hours is too low"
                 )
                 self.retrieval_interval = 1
+
+        if "user_login" in config:
+            self.user_login = config["user_login"]
+
+        if "flights" in config:
+            self.flights = config["flights"]
+
+        if "config_update_interval" in config:
+            self.config_update_interval = config["config_update_interval"]
